@@ -2,7 +2,7 @@
 
 ```bash
 # 克隆项目
-git clone https://gitee.com/missbeer/tegtech-admin-ui.git
+git clone -b dev https://github.com/teg-group/tegtech-admin-ui.git
 
 # 进入项目目录
 cd tegtech-admin-ui
