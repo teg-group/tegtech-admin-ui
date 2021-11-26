@@ -154,7 +154,6 @@ export const constantRoutes = [{
     {
         path: '/mini',
         component: Layout,
-        // redirect: '/goodsMaterial',
         alwaysShow: true,
         name: 'Mini',
         meta: { title: '用户管理', icon: 'user' },

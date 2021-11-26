@@ -23,7 +23,7 @@ export function productState(data) {
     })
 }
 
-
+// 商品管理列表
 export function getProductManageList(data) {
     return request({
       url: `/productManage/list`,
@@ -36,3 +36,23 @@ export function getProductManageList(data) {
         }
     })
   }
+
+  // 批量修改库存
+  export function batchUpdateStock(data) {
+    return request({
+      url: `/productManage/batchUpdateStock`,
+      method: 'put',
+      data: data
+    }).then(res => {
+    })
+}
+// 修改单个库存
+
+export function updateStock(data) {
+  return request({
+    url: `/productManage/updateStock`,
+    method: 'put',
+    data: data
+  }).then(res => {
+  })
+}
