@@ -46,12 +46,22 @@ export function getProductManageList(data) {
     }).then(res => {
     })
 }
-// 修改单个库存
 
+// 修改单个库存
 export function updateStock(data) {
   return request({
     url: `/productManage/updateStock`,
     method: 'put',
+    data: data
+  }).then(res => {
+  })
+}
+
+// 添加商品
+export function addProduct(data) {
+  return request({
+    url: `/product`,
+    method: 'post',
     data: data
   }).then(res => {
   })
