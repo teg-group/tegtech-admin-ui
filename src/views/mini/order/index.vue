@@ -1,14 +1,42 @@
 <template>
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch">
-      <el-form-item label="商品编号/名称" prop="noticeTitle">
+      <el-form-item label="用户昵称/手机号" prop="searchValue">
         <el-input
-          v-model="queryParams.noticeTitle"
-          placeholder="请输入商品编号/名称"
+          v-model="queryParams.searchValue"
+          placeholder="请输入用户昵称/手机号"
           clearable
           size="small"
           @keyup.enter.native="handleQuery"
         />
+      </el-form-item>
+     <el-form-item label="下单日期" props="dateRange">
+        <el-date-picker
+          v-model="dateRange"
+          size="small"
+          style="width: 240px"
+          value-format="yyyy-MM-dd"
+          type="daterange"
+          range-separator="-"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
+        ></el-date-picker>
+      </el-form-item>
+      <el-form-item label="签收状态" prop="status">
+        <el-select
+          v-model="queryParams.status"
+          placeholder="物流状态"
+          clearable
+          size="small"
+          style="width: 240px"
+        >
+          <el-option
+            v-for="dict in statusOptions"
+            :key="dict.title"
+            :label="dict.title"
+            :value="dict.key"
+          />
+        </el-select>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
@@ -16,57 +44,44 @@
       </el-form-item>
     </el-form>
 
-    <el-row :gutter="10" class="mb8">
-      <el-col :span="1.5">
-        <el-button
-          type="primary"
-          plain
-          icon="el-icon-plus"
-          size="mini"
-          @click="handleAdd"
-          v-hasPermi="['system:notice:add']"
-        >批量增加库存</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="success"
-          plain
-          icon="el-icon-edit"
-          size="mini"
-          :disabled="single"
-          @click="handleUpdate"
-          v-hasPermi="['system:notice:edit']"
-        >修改</el-button>
-      </el-col>
-      <el-col :span="1.5">
-        <el-button
-          type="danger"
-          plain
-          icon="el-icon-delete"
-          size="mini"
-          :disabled="multiple"
-          @click="handleDelete"
-          v-hasPermi="['system:notice:remove']"
-        >删除</el-button>
-      </el-col>
-      <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
-    </el-row>
-
-    <el-table v-loading="loading" :data="noticeList" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center" />
-      <el-table-column prop="id" label="商品编号" align="center"/>
-      <el-table-column prop="name" label="商品名称" align="center"/>
-      <el-table-column prop="value" label="英文名称" align="center"/>
-      <el-table-column prop="createDate" label="创建日期" align="center">
+    <el-table v-loading="loading" :data="noticeList">
+       <el-table-column prop="orderTime" label="下单时间" align="center">
         <template slot-scope="{row}">
-          <span>{{ parseTime(row.createDate, '{y}-{m}-{d}') }}</span>
+          <span>{{ parseTime(row.orderTime, '{y}-{m}-{d}') }}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="creator" label="商品规格" align="center"/>
-      <el-table-column prop="creator" label="品牌" align="center"/>
-      <el-table-column prop="creator" label="保质期" align="center"/>
-      <el-table-column prop="creator" label="包装方式" align="center"/>
-      <el-table-column prop="creator" label="库存数量" align="center"/>
+      <el-table-column prop="nickName" label="用户昵称" align="center"/>
+      <el-table-column prop="phone" label="手机号码" align="center"/>
+      <el-table-column prop="quantity" label="订单编号" align="center"/>
+      <el-table-column prop="name" label="商品明细" align="center">
+        <template slot-scope="{row}">
+          <span>{{row.name}}，{{row.specification}}，共{{row.quantity}}袋</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="subtotal" label="实付金额" align="center"/>
+      <el-table-column prop="subtotal" label="付款说明" align="center">
+          <template slot-scope="{row}">
+            <span>总金额{{row.subtotal}}元 | 运费 {{row.freight}}元 | 积分抵扣{{row.integralDeductionFee}}元</span>
+          </template>
+      </el-table-column>
+      <el-table-column prop="recipientAddress" label="收货地址" align="center">
+         <template slot-scope="{row}">
+          <span>{{row.recipientAddress}} {{row.recipientName}} {{row.recipientPhone}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="status" label="物流状态" align="center">
+        <template slot-scope="{row}">
+          <span v-show="row.status === 1">代发货</span>
+          <span v-show="row.status === 2">待收货</span>
+          <span v-show="row.status === 3">已收货</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="expressNo" label="物流信息" align="center">
+        <template slot-scope="{row}">
+          <span>{{row.expressCompany}}{{row.expressNo}}</span>
+        </template>
+      </el-table-column>
+      </el-table-column>
       <el-table-column label="操作" align="center" fixed="right" class-name="small-padding fixed-width" width="130">
         <template slot-scope="scope">
           <el-button
@@ -75,33 +90,10 @@
             icon="el-icon-edit"
             @click="handleUpdate(scope.row)"
             v-hasPermi="['system:notice:edit']"
-          >修改库存</el-button>
-          <!-- <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-delete"
-            @click="handleDelete(scope.row)"
-            v-hasPermi="['system:notice:remove']"
-          >删除</el-button> -->
+          >填写物流信息</el-button>
         </template>
       </el-table-column>
-
-      <!-- <el-table-column
-        label="公告类型"
-        align="center"
-        prop="noticeType"
-        :formatter="typeFormat"
-        width="100"
-      /> -->
-      <!-- <el-table-column
-        label="状态"
-        align="center"
-        prop="status"
-        :formatter="statusFormat"
-        width="100"
-      /> -->
     </el-table>
-
     <pagination
       v-show="total>0"
       :total="total"
@@ -109,32 +101,29 @@
       :limit.sync="queryParams.pageSize"
       @pagination="getList"
     />
-
     <!-- 添加或修改公告对话框 -->
-    <el-dialog :close-on-click-modal="false" :title="title" :visible.sync="open" width="400px" append-to-body>
-        <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-            <el-form-item label="增加数量" prop="noticeTitle">
-                <el-input v-model="form.noticeTitle" placeholder="请输入增加数量" />
+    <el-dialog :close-on-click-modal="false" :title="title" :visible.sync="open" width="450px" append-to-body>
+      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+            <el-form-item label="物流公司" prop="expressCompany">
+              <el-select v-model="form.expressCompany" placeholder="请选择物流公司" style="width:330px">
+                <el-option :label="item.title" :value="item.title" :key="item.key" v-for="item in expressCompanyList"></el-option>
+              </el-select>
             </el-form-item>
-        </el-form>
-        <div class="tips-block">
-            <p>备注：</p>
-            <p>1、通过此功能，给所有未停用的商品增加库存；</p>
-            <p>2、库存增加后，直接显示在用户端，可进行购买；</p>
-            <p>3、库存最大上限为99999；</p>
-            <p>4、若需要调整单个商品的库存，可通过商品的修改库存功能；</p>
-        </div>
-        <div slot="footer" class="dialog-footer">
-            <el-button type="primary" size="small" @click="submitForm">确 定</el-button>
-            <el-button @click="cancel" size="small">取 消</el-button>
-        </div>
-        </el-dialog>
-    </div>
+            <el-form-item label="物流单号" prop="expressNo">
+              <el-input v-model="form.expressNo" placeholder="请输入公告标题" />
+            </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="submitForm">确 定</el-button>
+        <el-button @click="cancel">取 消</el-button>
+      </div>
+    </el-dialog>
+  </div>
 </template>
 
 <script>
-import { listNotice, getNotice, delNotice, addNotice, updateNotice, exportNotice } from "@/api/system/notice";
 import Editor from '@/components/Editor';
+import { queryOrderList, modifyOrder } from "@/api/mini/accountManage"
 
 export default {
   name: "Notice",
@@ -155,14 +144,47 @@ export default {
       showSearch: true,
       // 总条数
       total: 0,
-      // 公告表格数据
+      // 表格数据
       noticeList: [],
       // 弹出层标题
-      title: "",
+      title: "物流信息",
       // 是否显示弹出层
       open: false,
       // 类型数据字典
-      statusOptions: [],
+      statusOptions: [
+        {
+          title:'全部',
+          key:0
+        },{
+          title:'代发货',
+          key:1
+        },{
+          title:'待收货',
+          key:2
+        },{
+          title:'已收货',
+          key:3
+        }
+      ],
+      expressCompanyList:[
+        {
+          title:'顺丰快递',
+          key:'shunfeng'
+        }, {
+          title:'圆通快递',
+          key:'yuantong'
+        }, {
+          title:'中通快递',
+          key:'zhongtong'
+        }, {
+          title:'申通快递',
+          key:'shentong'
+        }, {
+          title:'韵达快递',
+          key:'yunda'
+        }
+      ],
+      statusOptions1:[],
       // 状态数据字典
       typeOptions: [],
       // 查询参数
@@ -170,50 +192,43 @@ export default {
       queryParams: {
         pageNum: 1,
         pageSize: 10,
-        noticeTitle: undefined,
-        createBy: undefined,
-        status: undefined
+        searchValue: undefined,
+        status: undefined,
+        beginTime:undefined,
+        endTime:undefined
       },
       // 表单参数
       form: {},
       // 表单校验
       rules: {
-        noticeTitle: [
-          { required: true, message: "公告标题不能为空", trigger: "blur" }
+        expressCompany: [
+          { required: true, message: "请选择物流公司", trigger: "change" }
         ],
-        noticeType: [
-          { required: true, message: "公告类型不能为空", trigger: "change" }
+        expressNo: [
+          { required: true, message: "物流单号不能为空", trigger: "change" }
         ]
       }
     };
   },
   created() {
     this.getList();
-    this.getDicts("sys_notice_status").then(response => {
-      this.statusOptions = response.data;
-    });
-    this.getDicts("sys_notice_type").then(response => {
-      this.typeOptions = response.data;
-    });
   },
   methods: {
-    /** 查询公告列表 */
+    /** 查询列表 */
     getList() {
       this.loading = true;
-      listNotice(this.queryParams).then(response => {
+      console.log(this.dateRange)
+      if(this.dateRange.length === 2){
+        this.queryParams.beginTime = this.dateRange[0];
+        this.queryParams.endTime = this.dateRange[1];
+      }
+      queryOrderList(this.queryParams).then(response => {
         this.noticeList = response.rows;
         this.total = response.total;
         this.loading = false;
       });
     },
-    // 公告状态字典翻译
-    statusFormat(row, column) {
-      return this.selectDictLabel(this.statusOptions, row.status);
-    },
-    // 公告状态字典翻译
-    typeFormat(row, column) {
-      return this.selectDictLabel(this.typeOptions, row.noticeType);
-    },
+
     // 取消按钮
     cancel() {
       this.open = false;
@@ -222,11 +237,8 @@ export default {
     // 表单重置
     reset() {
       this.form = {
-        noticeId: undefined,
-        noticeTitle: undefined,
-        noticeType: undefined,
-        noticeContent: undefined,
-        status: "0"
+        expressCompany: undefined,
+        expressNo: undefined,
       };
       this.resetForm("form");
     },
@@ -238,47 +250,28 @@ export default {
     /** 重置按钮操作 */
     resetQuery() {
       this.resetForm("queryForm");
+      this.dateRange = ''
+      this.queryParams.beginTime =''
+      this.queryParams.endTime =''
       this.handleQuery();
-    },
-    // 多选框选中数据
-    handleSelectionChange(selection) {
-      this.ids = selection.map(item => item.noticeId)
-      this.single = selection.length!=1
-      this.multiple = !selection.length
-    },
-    /** 新增按钮操作 */
-    handleAdd() {
-      this.reset();
-      this.open = true;
-      this.title = "添加公告";
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset();
-      const noticeId = row.noticeId || this.ids
-      getNotice(noticeId).then(response => {
-        this.form = response.data;
-        this.open = true;
-        this.title = "修改公告";
-      });
+      this.form.id = Number(row.id)
+      console.log(this.form)
+      this.open = true;
     },
     /** 提交按钮 */
     submitForm: function() {
       this.$refs["form"].validate(valid => {
         if (valid) {
-          if (this.form.noticeId != undefined) {
-            updateNotice(this.form).then(response => {
-              this.msgSuccess("修改成功");
-              this.open = false;
-              this.getList();
-            });
-          } else {
-            addNotice(this.form).then(response => {
-              this.msgSuccess("新增成功");
-              this.open = false;
-              this.getList();
-            });
-          }
+          console.log(this.form)
+          modifyOrder(this.form).then(response => {
+            this.msgSuccess("修改成功");
+            this.open = false;
+            this.getList();
+          });
         }
       });
     },
@@ -299,13 +292,3 @@ export default {
   }
 };
 </script>
-<style lang="scss" scoped>
-.tips-block {
-    font-size: 12px;
-    color: #A8ADB8;
-    line-height: 20px;
-    p{
-        margin: 0;
-    }
-}
-</style>
