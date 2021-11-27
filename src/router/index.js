@@ -148,7 +148,13 @@ export const constantRoutes = [{
                 component: () =>
                     import ('@/views/basic/homeManage'),
                 meta: { title: '首页管理', icon: 'table' }
-            },
+            }, {
+                path: 'paramsSetting',
+                name: 'ParamsSetting',
+                component: () =>
+                    import ('@/views/basic/paramsSetting'),
+                meta: { title: '检测参数设置', icon: 'table' }
+            }
         ]
     },
     {
@@ -163,25 +169,25 @@ export const constantRoutes = [{
             component: () =>
                 import ('@/views/mini/account'),
             meta: { title: '账号管理', icon: 'table' }
-        },{
+        }, {
             path: 'petInfo',
             name: 'PetInfo',
             component: () =>
                 import ('@/views/mini/petInfo'),
             meta: { title: '宠物资料', icon: 'table' }
-        },{
+        }, {
             path: 'receiveCard',
             name: 'ReceiveCard',
             component: () =>
                 import ('@/views/mini/receiveCard'),
             meta: { title: '领卡管理', icon: 'table' }
-        },{
+        }, {
             path: 'detection',
             name: 'Detection',
             component: () =>
                 import ('@/views/mini/detection'),
             meta: { title: '检测管理', icon: 'table' }
-        },{
+        }, {
             path: 'order',
             name: 'Order',
             component: () =>
