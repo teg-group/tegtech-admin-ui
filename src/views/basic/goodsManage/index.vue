@@ -25,7 +25,6 @@
           icon="el-icon-plus"
           size="mini"
           @click="handleAddStock('batch')"
-          v-hasPermi="['system:notice:add']"
           :disabled="multiple"
         >批量增加库存</el-button>
       </el-col>
@@ -48,7 +47,6 @@
             type="text"
             icon="el-icon-edit"
             @click="handleUpdate(row)"
-            v-hasPermi="['system:notice:edit']"
           >修改库存</el-button>
         </template>
       </el-table-column>
@@ -116,7 +114,7 @@ export default {
       rules: {
         stock: [
           { required: true, message: "增加数量不能为空", trigger: "blur" },
-          { type: 'number', message: '数量必须为数字值'},
+          { type: 'number', message: '数量必须为数字值', trigger: "blur"},
           { validator: validStock, trigger: ['change', 'blur'] }
         ],
       },
