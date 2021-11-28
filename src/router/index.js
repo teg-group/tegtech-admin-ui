@@ -118,7 +118,7 @@ export const constantRoutes = [{
                 name: 'GoodsMaterial',
                 component: () =>
                     import ('@/views/basic/goodsMaterial'),
-                meta: { title: '商品资料', icon: 'table' }
+                meta: { title: '商品资料', icon: 'table', noCache: true,}
             },
             {
                 path: 'goodsManage',

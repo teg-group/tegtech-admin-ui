@@ -196,7 +196,7 @@ export default {
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
-
+      this.$router.push("/basic/operate?id=" + row.id)
     },
   }
 };

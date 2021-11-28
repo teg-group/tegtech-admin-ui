@@ -98,7 +98,7 @@
                     v-for="item in canidaeOptions"
                     :key="item.id"
                     :label="item.name"
-                    :value="item.id"
+                    :value="String(item.id)"
                 />
             </el-select>
         </el-form-item>
@@ -107,7 +107,7 @@
             <span style="margin-left: 10px">月</span>
         </el-form-item>
         <el-form-item label="商品重量" prop="weight">
-            <el-input v-model="attrForm.weight" placeholder="输入商品包装的重量，单位（g)" size="small" style="width: 90%"/>
+            <el-input v-model="attrForm.weight" placeholder="输入商品的重量，单位（g)" size="small" style="width: 90%"/>
             <span style="margin-left: 10px">g</span>
         </el-form-item>
         <el-form-item label="包装方式" prop="packing">
@@ -170,7 +170,6 @@
                 action="#"
                 list-type="picture-card"
                 :show-file-list="false"
-                :file-list="fileList"
                 :http-request="httpRequestArr">
                     <div slot="default" class="tips-block">
                         <i class="el-icon-plus"></i>
@@ -183,23 +182,33 @@
         <el-form-item label="商品介绍" prop="description">
             <editor v-model="picForm.description" :min-height="192"/>
         </el-form-item>
+        <el-form-item label="">
+            <div>
+                <el-button
+                    size="mini"
+                    @click="handleBack"
+                >返回</el-button>
+                <el-button
+                    v-if="id"
+                    type="primary"
+                    size="mini"
+                    @click="handleSave('close')"
+                >保存</el-button>
+                <el-button
+                    v-if="!id"
+                    type="primary"
+                    size="mini"
+                    @click="handleSave('close')"
+                >保存并关闭</el-button>
+                <el-button
+                 v-if="!id"
+                 type="primary"
+                 size="mini"
+                 @click="handleSave('continue')"
+                >保存并继续</el-button>
+            </div>
+        </el-form-item>
     </el-form>
-    <div>
-         <el-button
-            size="mini"
-            @click="handleBack"
-          >返回</el-button>
-        <el-button
-        type="primary"
-        size="mini"
-        @click="handleSave('close')"
-      >保存并关闭</el-button>
-       <el-button
-        type="primary"
-        size="mini"
-        @click="handleSave('continue')"
-      >保存并继续</el-button>
-    </div>
     <el-dialog :visible.sync="dialogVisible" title="查看大图">
         <img width="100%" :src="dialogImageUrl" alt="">
     </el-dialog>
@@ -207,7 +216,7 @@
 </template>
 <script>
 import Editor from '@/components/Editor';
-import { addProduct } from "@/api/mini/material"
+import { addProduct, getProductInfo, updateProduct } from "@/api/mini/material"
 import { getBreedList } from "@/api/mini/"
 import OssUpload from "@/service/ossUpload"
 export default {
@@ -243,6 +252,7 @@ data(){
             petSize: [],
             suitableStage: [],
             category: "",
+            shelfLife: "",
             dogBreed: [],
             weight: "",
             packing: "",
@@ -276,19 +286,63 @@ data(){
         canidae: [],
         dialogImageUrl: '',
         dialogVisible: false,
-        disabled: false,
-        fileList: []
+        id: this.$route.query.id || ""
     }
 },
+beforeRouteEnter (to, from, next) {
+    if (to.query.id) {
+        to.meta.title = "编辑商品"
+    } else {
+        to.meta.title = "新增商品"
+    }
+    next()
+},
 created() {
-    this.getBreedList()
+    this.init() 
 },
 methods: {
-    async getBreedList(){
+    async init(){
         this.canidaeOptions = await getBreedList()
+        if (this.id) {
+            this.getProductInfo()
+        }
+    },
+    async getProductInfo(){
+        let result = await getProductInfo({
+            id: this.id
+        })
+        // 基本信息
+        this.basicForm.code = result.code;
+        this.basicForm.brand = result.brand;
+        this.basicForm.name = result.name;
+        this.basicForm.english = result.english;
+        this.basicForm.costPrice = result.costPrice;
+        this.basicForm.sellingPrice = result.sellingPrice;
+        this.basicForm.discountPrice = result.discountPrice;
+        this.basicForm.label = result.label;
+       // 商品属性
+       this.attrForm.suitableGroup = result.suitableGroup.split(",");
+       this.attrForm.specification = result.specification;
+       this.attrForm.petSize = result.petSize.split(",");
+       this.attrForm.suitableStage = result.suitableStage.split(",");
+       this.attrForm.category = result.category;
+       this.attrForm.dogBreed = result.dogBreed.split(",");
+       this.attrForm.shelfLife = result.shelfLife;
+       this.attrForm.weight = result.weight;
+       this.attrForm.packing = result.packing;
+       this.attrForm.deduction = String(result.deduction);
+       // 商品展示
+        this.picForm.coverImg = result.coverImg;
+        this.picForm.pics = result.pics.map(item => {
+            return {
+                name: "",
+                url: item
+            }
+        });
+        this.picForm.description = result.description;
     },
     handleRemove(url, index) {
-        this.fileList.splice(index, 1)
+        this.picForm.pics.splice(index, 1)
     },
     handlePictureCardPreview(url) {
         this.dialogImageUrl = url;
@@ -305,23 +359,38 @@ methods: {
                 }
             })
         }
-        // if (!flag) return;
+        if (!flag) return;
         try{
             let params = Object.assign(this.basicForm, this.attrForm, this.picForm);
             params.suitableGroup = params.suitableGroup.join(",");
             params.petSize = params.petSize.join(",");
             params.suitableStage = params.suitableStage.join(",");
             params.dogBreed = params.dogBreed.join(",");
-            params.pics = params.pics.filter(item => item.url);
+            params.pics = params.pics.map(item => item.url);
             console.log(params)
-            // await addProduct({
-                
-            // })
+            if (this.id) {
+                await updateProduct({
+                    id: this.id,
+                    ...params
+                })
+            } else {
+                await addProduct({
+                    ...params
+                })
+            }
+            keyArr.map(key => {
+                this.resetForm(key);
+            })
+            if (type === "close") {
+                this.$router.push("/basic/goodsMaterial")
+            }
         }catch(error){
             console.log(error)
         }
     },
-    handleBack(){},
+    handleBack(){
+        this.$router.push("/basic/goodsMaterial")
+    },
     httpRequest(files){
         const ossUpload = new OssUpload(
             files.file, 
