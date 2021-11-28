@@ -22,7 +22,7 @@
           end-placeholder="结束日期"
         ></el-date-picker>
       </el-form-item>
-      <el-form-item label="签收状态" prop="status">
+      <el-form-item label="物流状态" prop="status">
         <el-select
           v-model="queryParams.status"
           placeholder="物流状态"
@@ -32,9 +32,9 @@
         >
           <el-option
             v-for="dict in statusOptions"
-            :key="dict.title"
-            :label="dict.title"
-            :value="dict.key"
+            :key="dict.dictValue"
+            :label="dict.dictLabel"
+            :value="dict.dictValue"
           />
         </el-select>
       </el-form-item>
@@ -71,9 +71,7 @@
       </el-table-column>
       <el-table-column prop="status" label="物流状态" align="center">
         <template slot-scope="{row}">
-          <span v-show="row.status === 1">代发货</span>
-          <span v-show="row.status === 2">待收货</span>
-          <span v-show="row.status === 3">已收货</span>
+           <span>{{ row.status | statusText}}</span>
         </template>
       </el-table-column>
       <el-table-column prop="expressNo" label="物流信息" align="center">
@@ -81,15 +79,15 @@
           <span>{{row.expressCompany}}{{row.expressNo}}</span>
         </template>
       </el-table-column>
-      </el-table-column>
       <el-table-column label="操作" align="center" fixed="right" class-name="small-padding fixed-width" width="130">
-        <template slot-scope="scope">
+        <template slot-scope="{row}">
           <el-button
             size="mini"
             type="text"
             icon="el-icon-edit"
-            @click="handleUpdate(scope.row)"
+            @click="handleUpdate(row)"
             v-hasPermi="['system:notice:edit']"
+            :disabled="row.status !== 1"
           >填写物流信息</el-button>
         </template>
       </el-table-column>
@@ -101,7 +99,6 @@
       :limit.sync="queryParams.pageSize"
       @pagination="getList"
     />
-    <!-- 添加或修改公告对话框 -->
     <el-dialog :close-on-click-modal="false" :title="title" :visible.sync="open" width="450px" append-to-body>
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
             <el-form-item label="物流公司" prop="expressCompany">
@@ -110,7 +107,7 @@
               </el-select>
             </el-form-item>
             <el-form-item label="物流单号" prop="expressNo">
-              <el-input v-model="form.expressNo" placeholder="请输入公告标题" />
+              <el-input v-model="form.expressNo" placeholder="填写发货物流单的单号" />
             </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -122,14 +119,10 @@
 </template>
 
 <script>
-import Editor from '@/components/Editor';
 import { queryOrderList, modifyOrder } from "@/api/mini/accountManage"
 
 export default {
-  name: "Notice",
-  components: {
-    Editor
-  },
+  name: "Order",
   data() {
     return {
       // 遮罩层
@@ -153,38 +146,20 @@ export default {
       // 类型数据字典
       statusOptions: [
         {
-          title:'全部',
-          key:0
+          dictLabel:'全部',
+          dictValue: 0
         },{
-          title:'代发货',
-          key:1
+          dictLabel:'待发货',
+          dictValue: 1
         },{
-          title:'待收货',
-          key:2
+          dictLabel:'待收货',
+          dictValue: 2
         },{
-          title:'已收货',
-          key:3
+          dictLabel:'已收货',
+          dictValue:3
         }
       ],
-      expressCompanyList:[
-        {
-          title:'顺丰快递',
-          key:'shunfeng'
-        }, {
-          title:'圆通快递',
-          key:'yuantong'
-        }, {
-          title:'中通快递',
-          key:'zhongtong'
-        }, {
-          title:'申通快递',
-          key:'shentong'
-        }, {
-          title:'韵达快递',
-          key:'yunda'
-        }
-      ],
-      statusOptions1:[],
+      expressCompanyList: [],
       // 状态数据字典
       typeOptions: [],
       // 查询参数
@@ -210,14 +185,30 @@ export default {
       }
     };
   },
+  filters: {
+    statusText(state){
+      switch(state){
+        case 1:
+          return "待发货"
+        case 2:
+          return "待收货"
+        case 3:
+          return "已收货"
+        default:
+          return ""
+      }
+    }
+  },
   created() {
     this.getList();
+    this.getDicts("pb_express_company").then(response => {
+      this.expressCompanyList = response.data;
+    });
   },
   methods: {
     /** 查询列表 */
     getList() {
       this.loading = true;
-      console.log(this.dateRange)
       if(this.dateRange.length === 2){
         this.queryParams.beginTime = this.dateRange[0];
         this.queryParams.endTime = this.dateRange[1];
@@ -250,7 +241,7 @@ export default {
     /** 重置按钮操作 */
     resetQuery() {
       this.resetForm("queryForm");
-      this.dateRange = ''
+      this.dateRange = []
       this.queryParams.beginTime =''
       this.queryParams.endTime =''
       this.handleQuery();
@@ -275,20 +266,6 @@ export default {
         }
       });
     },
-    /** 删除按钮操作 */
-    handleDelete(row) {
-      const noticeIds = row.noticeId || this.ids
-      this.$confirm('是否确认删除公告编号为"' + noticeIds + '"的数据项?', "警告", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
-        }).then(function() {
-          return delNotice(noticeIds);
-        }).then(() => {
-          this.getList();
-          this.msgSuccess("删除成功");
-        })
-    }
   }
 };
 </script>

@@ -129,11 +129,19 @@ export const constantRoutes = [{
             },
             {
                 path: 'operate',
-                name: 'AddGoods',
+                name: 'Operate',
                 hidden: true,
                 component: () =>
-                    import ('@/views/basic/goodsMaterial/addGoods'),
+                    import ('@/views/basic/goodsMaterial/operate'),
                 meta: { title: '新增商品', activeMenu: "/basic/goodsMaterial" }
+            },
+            {
+                path: 'detail',
+                name: 'Detail',
+                hidden: true,
+                component: () =>
+                    import ('@/views/basic/goodsMaterial/detail'),
+                meta: { title: '商品详情', activeMenu: "/basic/goodsMaterial" }
             },
             {
                 path: 'platformSet',

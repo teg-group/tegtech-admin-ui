@@ -133,7 +133,6 @@
             class="upload-block"
             action="#"
             list-type="picture-card"
-            :limit="1"
             :show-file-list="false"
             :http-request="httpRequest">
                 <div class="tips-block" v-if="!picForm.coverImg">
@@ -220,6 +219,7 @@ import { addProduct, getProductInfo, updateProduct } from "@/api/mini/material"
 import { getBreedList } from "@/api/mini/"
 import OssUpload from "@/service/ossUpload"
 export default {
+name: "Operate",
 components: {
     Editor
 },
@@ -280,10 +280,7 @@ data(){
             pics: [{ required: true, message: '请上传商品图集', trigger: 'blur' }],
             description: [{ required: true, message: '请填写商品描述', trigger: 'blur' }],
         },
-        checklist: [],
-        radio: 3,
         canidaeOptions: [],
-        canidae: [],
         dialogImageUrl: '',
         dialogVisible: false,
         id: this.$route.query.id || ""
@@ -392,6 +389,7 @@ methods: {
         this.$router.push("/basic/goodsMaterial")
     },
     httpRequest(files){
+        console.log(files, "---")
         const ossUpload = new OssUpload(
             files.file, 
             "product", 

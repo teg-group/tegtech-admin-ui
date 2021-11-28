@@ -86,3 +86,21 @@ export function updateProduct(data) {
   }).then(res => {
   })
 }
+
+// 是否推荐
+export function updateRecommend(data) {
+  return request({
+    url: `/product/recommend/${data.id}`,
+    method: 'put',
+  }).then(res => {
+  })
+}
+
+// 删除商品
+export function deleteProduct(data) {
+  return request({
+    url: `/product/${data.id}`,
+    method: 'delete',
+  }).then(res => {
+  })
+}

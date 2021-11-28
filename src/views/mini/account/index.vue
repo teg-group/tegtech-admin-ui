@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch">
+    <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" @submit.native.prevent>
       <el-form-item label="微信昵称/手机号" prop="noticeTitle">
         <el-input
           v-model="queryParams.searchValue"
@@ -50,14 +50,10 @@
 </template>
 
 <script>
-import Editor from '@/components/Editor';
 import { queryAccountManage } from "@/api/mini/accountManage"
 
 export default {
-  name: "Notice",
-  components: {
-    Editor
-  },
+  name: "Account",
   data() {
     return {
       // 遮罩层
@@ -89,12 +85,6 @@ export default {
   },
   created() {
     this.getList();
-    // this.getDicts("sys_notice_status").then(response => {
-    //   this.statusOptions = response.data;
-    // });
-    // this.getDicts("sys_notice_type").then(response => {
-    //   this.typeOptions = response.data;
-    // });
   },
   methods: {
     /** 查询账户列表 */

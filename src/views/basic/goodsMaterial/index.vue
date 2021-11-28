@@ -61,7 +61,7 @@
     <el-table-column prop="discountPrice" label="优惠价" align="center"/>
     <el-table-column prop="selection" label="是否推荐" align="center">
       <template slot-scope="{row}">
-        <span>{{ row.selection === 0 ? "是" : "否" }}</span>
+        <el-switch :value="!row.selection" @change="onChangeSelection($event, row)"/>
       </template>
     </el-table-column>
     <el-table-column prop="status" label="商品状态" align="center">
@@ -69,12 +69,12 @@
         <span>{{ row.status === 0 ? "已上架" : "已下架" }}</span>
       </template>
     </el-table-column>
-    <el-table-column label="操作" align="center" fixed="right" class-name="small-padding fixed-width" width="130">
+    <el-table-column label="操作" align="center" fixed="right" class-name="small-padding fixed-width" width="180">
       <template slot-scope="scope">
         <el-button 
           type="text" 
           size="mini" 
-          @click="onLookDetail(scope.row)"
+          @click="handleLook(scope.row)"
         >查看详情</el-button>
         <el-button
           size="mini"
@@ -83,6 +83,13 @@
           @click="handleUpdate(scope.row)"
           v-hasPermi="['system:notice:edit']"
         >编辑</el-button>
+        <el-button
+          size="mini"
+          type="text"
+          icon="el-icon-delete"
+          @click="handleDelete(scope.row)"
+          v-hasPermi="['system:dept:remove']"
+        >删除</el-button>
       </template>
     </el-table-column>
   </el-table>
@@ -106,7 +113,7 @@
 </template>
 
 <script>
-import { getProductList, productState } from "@/api/mini/material"
+import { getProductList, productState, updateRecommend, deleteProduct } from "@/api/mini/material"
 import listPage from "@/mixin/listPage"
 export default {
   name: "GoodsMaterial",
@@ -177,6 +184,15 @@ export default {
         this.getList()
       }catch(error){}
     },
+    async onChangeSelection(val, row){
+      try{
+        await updateRecommend({
+          id: row.id
+        })
+        this.$message.success("操作成功")
+        this.getList()
+      }catch(error){}
+    },
     /** 搜索按钮操作 */
     handleQuery() {
       this.listQuery.pageNum = 1;
@@ -192,11 +208,24 @@ export default {
     },
     /** 查看详情 */
     handleLook(row){
-
+      this.$router.push("/basic/detail?id=" + row.id)
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.$router.push("/basic/operate?id=" + row.id)
+    },
+    /** 删除按钮操作 */
+    handleDelete(row){
+      this.$confirm('是否确认删除名称为"' + row.name + '"的数据项?', "警告", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      }).then(function() {
+        return deleteProduct({ id: row.id });
+      }).then(() => {
+        this.getList();
+        this.msgSuccess("删除成功");
+      })
     },
   }
 };
