@@ -188,6 +188,13 @@ export const constantRoutes = [{
                 import ('@/views/mini/detection'),
             meta: { title: '检测管理', icon: 'table' }
         }, {
+            path: 'detectionReport',
+            name: 'DetectionReport',
+            hidden: true,
+            component: () =>
+                import ('@/views/mini/detection/report'),
+            meta: { title: '检测报告', activeMenu: "/mini/detection" }
+        }, {
             path: 'order',
             name: 'Order',
             component: () =>
