@@ -1,30 +1,27 @@
 <template>
-  <el-card class="box-card" v-show="isShow">
-    <div slot="header" class="clearfix">
-      <span>编辑参数设置</span>
-    </div>
-    <el-form ref="form" :model="form" label-width="80px">
-      <el-form-item label="检测项目">
-        <el-input :disabled="true" v-model="form.item"></el-input>
-      </el-form-item>
-      <el-form-item label="检测结果">
-        <el-input :disabled="true" v-model="form.value"></el-input>
-      </el-form-item>
-      <el-form-item label="文字解读">
-        <el-input type="textarea" v-model="form.description"></el-input>
-      </el-form-item>
-      <el-form-item label="戒食">
-        <el-input type="textarea" v-model="form.dietDesc"></el-input>
-      </el-form-item>
-      <el-form-item label="多吃">
-        <el-input type="textarea" v-model="form.eatDesc"></el-input>
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" @click="onSubmit">保存</el-button>
-        <el-button @click="onCancel">取消</el-button>
-      </el-form-item>
-    </el-form>
-  </el-card>
+<el-dialog :close-on-click-modal="false" title="编辑参数" :visible.sync="isShow" width="500px" append-to-body :before-close="cancel">
+  <el-form ref="form" :model="form" label-width="80px">
+    <el-form-item label="检测项目">
+      <el-input :disabled="true" v-model="form.item"></el-input>
+    </el-form-item>
+    <el-form-item label="检测结果">
+      <el-input :disabled="true" v-model="form.value"></el-input>
+    </el-form-item>
+    <el-form-item label="文字解读">
+      <el-input type="textarea" v-model="form.description" rows="4"></el-input>
+    </el-form-item>
+    <el-form-item label="戒食">
+      <el-input type="textarea" v-model="form.dietDesc" rows="2"></el-input>
+    </el-form-item>
+    <el-form-item label="多吃">
+      <el-input type="textarea" v-model="form.eatDesc" rows="2"></el-input>
+    </el-form-item>
+  </el-form>
+  <div slot="footer" class="dialog-footer">
+    <el-button type="primary" size="small" @click="submitForm">确 定</el-button>
+    <el-button @click="cancel" size="small">取 消</el-button>
+  </div>
+</el-dialog>
 </template>
 <script>
 export default {
@@ -42,7 +39,7 @@ export default {
     };
   },
   methods: {
-    onSubmit() {
+    submitForm() {
       let params = {
         id: this.id,
         description: this.form.description,
@@ -59,10 +56,8 @@ export default {
       this.form.eatDesc = obj.eatDesc;
       this.id = obj.id;
     },
-    onCancel() {
-      console.log("cancel");
-
-      this.$emit("onCancel", false);
+    cancel() {
+      this.$emit("onCancel");
     }
   }
 };

@@ -1,29 +1,29 @@
 <template>
-  <div class="app-container">
-    <el-tabs type="card">
-      <el-tab-pane label="参数设置">
-        <el-table :data="tableData" :span-method="spanMethod" border style="width: 100%">
-          <el-table-column prop="item" label="检测项目" width="180"></el-table-column>
-          <el-table-column prop="value" label="检测结果" width="180"></el-table-column>
-          <el-table-column prop="description" label="文字解读"></el-table-column>
-          <el-table-column prop="dietDesc" label="戒食"></el-table-column>
-          <el-table-column prop="eatDesc" label="多吃"></el-table-column>
-          <el-table-column fixed="right" label="操作" width="100">
-            <template slot-scope="scope">
-              <el-button @click="handleClick(scope.row)" type="text" size="small">编辑</el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-        <settingForm
-          class="setting-form"
-          ref="settingForm"
-          :isShow="isOpen"
-          @onSubmit="onSubmit"
-          @onCancel="onCancel"
-        />
-      </el-tab-pane>
-    </el-tabs>
-  </div>
+<div class="app-container">
+  <el-tabs type="card">
+    <el-tab-pane label="参数设置">
+      <el-table :data="tableData" :span-method="spanMethod" border style="width: 100%">
+        <el-table-column prop="item" label="检测项目" width="120" center></el-table-column>
+        <el-table-column prop="value" label="检测结果" width="120"></el-table-column>
+        <el-table-column prop="description" label="文字解读"></el-table-column>
+        <el-table-column prop="dietDesc" label="戒食"></el-table-column>
+        <el-table-column prop="eatDesc" label="多吃"></el-table-column>
+        <el-table-column fixed="right" label="操作" width="100">
+          <template slot-scope="scope">
+            <el-button @click="handleClick(scope.row)" type="text" size="small">编辑</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      <settingForm
+        class="setting-form"
+        ref="settingForm"
+        :isShow="isOpen"
+        @onSubmit="onSubmit"
+        @onCancel="onCancel"
+      />
+    </el-tab-pane>
+  </el-tabs>
+</div>
 </template>
 <script>
 import {
@@ -46,7 +46,6 @@ export default {
   },
   methods: {
     handleClick(row) {
-      console.log(row);
       this.$refs.settingForm.giveValue(row);
       this.isOpen = true;
     },
@@ -56,8 +55,8 @@ export default {
         this.setrowspans();
       });
     },
-    onCancel(data) {
-      this.isOpen = data;
+    onCancel() {
+      this.isOpen = false;
     },
     onSubmit(data) {
       modifyParamsSetting(data).then(() => {
@@ -76,7 +75,6 @@ export default {
           colspan: 1
         };
       }
-      console.log(row, column, rowIndex, columnIndex);
     },
     setrowspans() {
       // 先给所有的数据都加一个v.rowspan = 1
@@ -105,10 +103,4 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-.setting-form {
-  position: fixed;
-  left: 47%;
-  top: 300px;
-  width: 350px;
-}
 </style>
