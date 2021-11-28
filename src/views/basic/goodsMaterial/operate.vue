@@ -220,6 +220,7 @@ import { addProduct, getProductInfo, updateProduct } from "@/api/mini/material"
 import { getBreedList } from "@/api/mini/"
 import OssUpload from "@/service/ossUpload"
 export default {
+name: "Operate",
 components: {
     Editor
 },
@@ -280,10 +281,7 @@ data(){
             pics: [{ required: true, message: '请上传商品图集', trigger: 'blur' }],
             description: [{ required: true, message: '请填写商品描述', trigger: 'blur' }],
         },
-        checklist: [],
-        radio: 3,
         canidaeOptions: [],
-        canidae: [],
         dialogImageUrl: '',
         dialogVisible: false,
         id: this.$route.query.id || ""
