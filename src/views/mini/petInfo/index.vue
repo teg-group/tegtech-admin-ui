@@ -1,6 +1,6 @@
 <template>
   <div class="app-container">
-    <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch">
+    <el-form :model="queryParams" ref="queryForm" :inline="true" v-show="showSearch" @submit.native.prevent>
       <el-form-item label="宠物名称" prop="noticeTitle">
         <el-input
           v-model="queryParams.searchValue"
@@ -70,15 +70,10 @@
 </template>
 
 <script>
-import { listNotice, getNotice, delNotice, addNotice, updateNotice, exportNotice } from "@/api/system/notice";
-import Editor from '@/components/Editor';
 import { queryPetList } from "@/api/mini/accountManage"
 
 export default {
-  name: "Notice",
-  components: {
-    Editor
-  },
+  name: "PetInfo",
   data() {
     return {
       // 遮罩层

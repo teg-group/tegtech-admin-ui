@@ -133,7 +133,6 @@
             class="upload-block"
             action="#"
             list-type="picture-card"
-            :limit="1"
             :show-file-list="false"
             :http-request="httpRequest">
                 <div class="tips-block" v-if="!picForm.coverImg">
@@ -390,6 +389,7 @@ methods: {
         this.$router.push("/basic/goodsMaterial")
     },
     httpRequest(files){
+        console.log(files, "---")
         const ossUpload = new OssUpload(
             files.file, 
             "product", 
