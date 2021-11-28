@@ -25,6 +25,7 @@
           icon="el-icon-plus"
           size="mini"
           @click="handleAddStock('batch')"
+          v-hasPermi="['system:notice:add']"
           :disabled="multiple"
         >批量增加库存</el-button>
       </el-col>

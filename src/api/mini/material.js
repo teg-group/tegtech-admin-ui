@@ -66,3 +66,23 @@ export function addProduct(data) {
   }).then(res => {
   })
 }
+
+// 商品详情
+export function getProductInfo(data) {
+  return request({
+    url: `/product/${data.id}`,
+    method: 'get',
+  }).then(res => {
+    return res.data
+  })
+}
+
+// 编辑商品
+export function updateProduct(data) {
+  return request({
+    url: `/product`,
+    method: 'put',
+    data: data
+  }).then(res => {
+  })
+}
