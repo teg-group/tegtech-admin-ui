@@ -2,7 +2,7 @@
 <div class="app-container">
   <el-tabs type="card">
     <el-tab-pane label="参数设置">
-      <el-table :data="tableData" :span-method="spanMethod" border style="width: 100%">
+      <el-table v-loading="loading" :data="tableData" :span-method="spanMethod" border style="width: 100%">
         <el-table-column prop="item" label="检测项目" width="120" center></el-table-column>
         <el-table-column prop="value" label="检测结果" width="120"></el-table-column>
         <el-table-column prop="description" label="文字解读"></el-table-column>
@@ -39,6 +39,7 @@ export default {
   },
   data() {
     return {
+      loading: true,
       isOpen: false,
       tableData: [],
       transData: []
@@ -53,6 +54,7 @@ export default {
       getParamsSettingList().then(res => {
         this.tableData = res;
         this.setrowspans();
+        this.loading = false;
       });
     },
     onCancel() {

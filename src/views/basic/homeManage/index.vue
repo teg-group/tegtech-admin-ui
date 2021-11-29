@@ -8,11 +8,12 @@
           icon="el-icon-plus"
           size="mini"
           @click="showDialog('editTips', {}, 'add')"
+          v-hasPermi="['system:notice:add']"
           >新增banner</el-button
         >
       </el-col>
     </el-row>
-    <el-table :data="bannerList" row-key="id">
+    <el-table v-loading="loading" :data="bannerList" row-key="id">
       <el-table-column
         v-for="(item, index) in tableColumn"
         :key="index"
@@ -25,8 +26,6 @@
           <div v-if="item.type === 'switch'">
             <el-switch
               v-model="scope.row[item.prop]"
-              active-color="#13ce66"
-              inactive-color="#ff4949"
               @change="
                 showDialog(
                   'submitTip',
@@ -38,13 +37,15 @@
             </el-switch>
           </div>
           <div v-else-if="item.type === 'img'">
-            <img :src="scope.row[item.prop]" width="250" height="150" />
+            <img :src="scope.row[item.prop]" class="cover-image" @click="handleCoverImage(scope.row)"/>
           </div>
           <div v-else-if="item.type === 'option'">
             <el-button
               size="mini"
               type="text"
+              icon="el-icon-edit"
               @click="showDialog('editTips', scope.row, 'edit')"
+              v-hasPermi="['system:notice:edit']"
               >编辑</el-button
             >
             <el-button
@@ -52,6 +53,7 @@
               type="text"
               icon="el-icon-delete"
               @click="showDialog('submitTip', scope.row, 'delete')"
+              v-hasPermi="['system:dept:remove']"
               >删除</el-button
             >
           </div>
@@ -62,7 +64,13 @@
         </template>
       </el-table-column>
     </el-table>
-
+      <pagination
+      v-show="total>0"
+      :total="total"
+      :page.sync="queryParams.pageNum"
+      :limit.sync="queryParams.pageSize"
+      @pagination="getList"
+    />
     <el-dialog
       :close-on-click-modal="false"
       :title="
@@ -167,6 +175,9 @@
         <el-button @click="cancel('editTips')">取 消</el-button>
       </div>
     </el-dialog>
+    <el-dialog :visible.sync="dialogVisible" title="查看大图">
+      <img width="100%" :src="dialogImageUrl" alt="">
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -191,6 +202,7 @@ const tableColumn = [
 export default {
   data() {
     return {
+      loading: true,
       freightList: [],
       visible: {
         submitTip: false,
@@ -218,7 +230,14 @@ export default {
       },{
         value: 3,
         label: "定制流程图"
-      }]
+      }],
+      total: 0,
+      queryParams: {
+        pageNum: 1,
+        pageSize: 10,
+      },
+      dialogVisible: false,
+      dialogImageUrl: ""
     };
   },
   filters: {
@@ -250,10 +269,10 @@ export default {
         )
     },
     getList() {
-      getBannerList().then(res => {
-        if (res.code == 1000) {
-          this.bannerList = res.rows;
-        }
+      getBannerList(this.queryParams).then(res => {
+        this.bannerList = res.rows;
+        this.total = res.total;
+        this.loading = false
       });
     },
     changeStatus() {
@@ -317,11 +336,20 @@ export default {
     },
     submitForm(flag) {
       this[flag]();
+    },
+    handleCoverImage(row){
+      this.dialogVisible = true;
+      this.dialogImageUrl = row.img
     }
   }
 };
 </script>
 <style lang="scss" scoped>
+.cover-image {
+  height: 80px;
+  cursor: pointer;
+  border-radius: 10px;
+}
 .form-block {
   &__tips {
     font-size: 12px;
