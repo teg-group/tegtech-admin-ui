@@ -17,11 +17,11 @@
       <el-row>
         <el-col :span="24">
           <el-form-item label="计费方式" prop="noticeTitle">
-            <el-radio-group v-model.number="radio">
-              <el-radio :label="3">按重量计费（g）</el-radio>
+            <el-radio-group v-model.number="radioWeight">
+              <el-radio label="0">按重量计费（g）</el-radio>
             </el-radio-group>
             <div>
-              <el-table :data="freightList" row-key="id">
+              <el-table :data="freightList" row-key="id" v-loading="loading">
                 <el-table-column
                   v-for="(item, index) in tableColumn"
                   :key="index"
@@ -68,12 +68,17 @@
                   </template>
                 </el-table-column>
               </el-table>
-              <el-button @click="addData">添加</el-button>
+              <el-button 
+               type="primary"
+               icon="el-icon-plus"
+               size="mini" 
+               @click="addData">添加地区</el-button>
             </div>
           </el-form-item>
         </el-col>
       </el-row>
     </el-form>
+
     <el-dialog
       :close-on-click-modal="false"
       title="保存确认"
@@ -133,6 +138,7 @@ const tableColumn = [
 export default {
   data() {
     return {
+      loading: true,
       freightList: [],
       visible: {
         showTips: false,
@@ -142,7 +148,8 @@ export default {
       form: {},
       radio: "",
       province: [],
-      optionData: {}
+      optionData: {},
+      radioWeight: "0"
     };
   },
   mounted() {
@@ -166,9 +173,11 @@ export default {
       });
     },
     getList() {
+      this.loading = true;
       getFreight().then(res => {
         if (res.code == 1000) {
           this.freightList = res.rows;
+          this.loading = false;
         }
       });
     },
@@ -191,6 +200,8 @@ export default {
             this.getList();
             this.visible.showTips = false;
           }
+        }).catch(() => {
+          this.getList();
         });
       } else {
         addFreight(this.optionData).then(res => {
@@ -199,6 +210,8 @@ export default {
             this.getList();
             this.visible.showTips = false;
           }
+        }).catch(() => {
+          this.getList();
         });
       }
     },
@@ -213,7 +226,7 @@ export default {
       return id;
     },
     showDialog(flag, row) {
-      if (flag === "deleteShowTips") {
+      if (flag === "deleteShowTips" && !row.id) {
         return this.freightList.pop();
       }
       this.optionData = row;
@@ -238,6 +251,7 @@ export default {
         return this.msgError("请先保存上一条数据信息");
       }
       this.freightList.push({
+        id: "",
         provinceName: "",
         firstWeight: "",
         firstWeightFee: "",

@@ -7,16 +7,16 @@
       label-width="150px"
       class="form-block"
     >
-      <!-- <el-row>
-        <el-col :span="12">
-            <el-form-item label="开启积分功能">
-                <el-radio-group v-model="radio">
-                    <el-radio :label="3">开启</el-radio>
-                    <el-radio :label="6">关闭</el-radio>
-                </el-radio-group>
-            </el-form-item>
-        </el-col>
-    </el-row> -->
+    <el-row>
+      <el-col :span="12">
+          <el-form-item label="开启积分功能">
+              <el-radio-group v-model="form.status">
+                  <el-radio :label="0">开启</el-radio>
+                  <el-radio :label="1">关闭</el-radio>
+              </el-radio-group>
+          </el-form-item>
+      </el-col>
+    </el-row>
       <el-row>
         <el-col :span="12">
           <el-form-item label="订单积分折现比例" prop="discountFactor">

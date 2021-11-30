@@ -203,6 +203,7 @@ export default {
   data() {
     return {
       loading: true,
+      showSearch: true,
       freightList: [],
       visible: {
         submitTip: false,
@@ -269,6 +270,7 @@ export default {
         )
     },
     getList() {
+      this.loading = true;
       getBannerList(this.queryParams).then(res => {
         this.bannerList = res.rows;
         this.total = res.total;

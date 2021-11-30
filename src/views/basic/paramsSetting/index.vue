@@ -1,28 +1,29 @@
 <template>
 <div class="app-container">
-  <el-tabs type="card">
-    <el-tab-pane label="参数设置">
-      <el-table v-loading="loading" :data="tableData" :span-method="spanMethod" border style="width: 100%">
-        <el-table-column prop="item" label="检测项目" width="120" center></el-table-column>
-        <el-table-column prop="value" label="检测结果" width="120"></el-table-column>
-        <el-table-column prop="description" label="文字解读"></el-table-column>
-        <el-table-column prop="dietDesc" label="戒食"></el-table-column>
-        <el-table-column prop="eatDesc" label="多吃"></el-table-column>
-        <el-table-column fixed="right" label="操作" width="100">
-          <template slot-scope="scope">
-            <el-button @click="handleClick(scope.row)" type="text" size="small">编辑</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-      <settingForm
-        class="setting-form"
-        ref="settingForm"
-        :isShow="isOpen"
-        @onSubmit="onSubmit"
-        @onCancel="onCancel"
-      />
-    </el-tab-pane>
-  </el-tabs>
+   <div class="tabs-block">
+    <el-radio-group v-model="tabKey">
+      <el-radio-button label="0">参数设置</el-radio-button>
+    </el-radio-group>
+   </div>
+  <el-table v-loading="loading" :data="tableData" :span-method="spanMethod" border style="width: 100%">
+    <el-table-column prop="item" label="检测项目" width="120" center></el-table-column>
+    <el-table-column prop="value" label="检测结果" width="120"></el-table-column>
+    <el-table-column prop="description" label="文字解读"></el-table-column>
+    <el-table-column prop="dietDesc" label="戒食"></el-table-column>
+    <el-table-column prop="eatDesc" label="多吃"></el-table-column>
+    <el-table-column fixed="right" label="操作" width="100">
+      <template slot-scope="scope">
+        <el-button @click="handleClick(scope.row)" type="text" size="small" icon="el-icon-edit" v-hasPermi="['system:notice:edit']">编辑</el-button>
+      </template>
+    </el-table-column>
+  </el-table>
+  <settingForm
+    class="setting-form"
+    ref="settingForm"
+    :isShow="isOpen"
+    @onSubmit="onSubmit"
+    @onCancel="onCancel"
+  />
 </div>
 </template>
 <script>
@@ -42,7 +43,8 @@ export default {
       loading: true,
       isOpen: false,
       tableData: [],
-      transData: []
+      transData: [],
+      tabKey: "0"
     };
   },
   methods: {
@@ -105,4 +107,8 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
+.tabs-block {
+    border-bottom: 1px solid #eee;
+    margin-bottom: 10px;
+}
 </style>

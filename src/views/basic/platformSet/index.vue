@@ -6,7 +6,7 @@
             <el-radio-button label="1">运费设置</el-radio-button>
         </el-radio-group>
     </div>
-    <div>
+    <div style="margin-top: 20px">
         <keep-alive>
             <component :is="componentsArr[tabKey]"></component>
         </keep-alive>
@@ -24,7 +24,7 @@ export default {
     },
     data() {
         return {
-            tabKey: "1",
+            tabKey: "0",
             componentsArr: ["integralSet", "freightSet"]
         }
     },
