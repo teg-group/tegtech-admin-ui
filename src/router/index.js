@@ -112,7 +112,7 @@ export const constantRoutes = [{
         redirect: '/goodsMaterial',
         alwaysShow: true,
         name: 'Basic',
-        meta: { title: '基础信息', icon: 'user' },
+        meta: { title: '基础信息', icon: 'post' },
         children: [{
                 path: 'goodsMaterial',
                 name: 'GoodsMaterial',
@@ -133,7 +133,7 @@ export const constantRoutes = [{
                 hidden: true,
                 component: () =>
                     import ('@/views/basic/goodsMaterial/operate'),
-                meta: { title: '新增商品', activeMenu: "/basic/goodsMaterial" }
+                meta: { title: '新增商品', activeMenu: "/basic/goodsMaterial", breadcrumb: false }
             },
             {
                 path: 'detail',
@@ -141,7 +141,7 @@ export const constantRoutes = [{
                 hidden: true,
                 component: () =>
                     import ('@/views/basic/goodsMaterial/detail'),
-                meta: { title: '商品详情', activeMenu: "/basic/goodsMaterial" }
+                meta: { title: '商品详情', activeMenu: "/basic/goodsMaterial", breadcrumb: false }
             },
             {
                 path: 'platformSet',
@@ -194,14 +194,14 @@ export const constantRoutes = [{
             name: 'Detection',
             component: () =>
                 import ('@/views/mini/detection'),
-            meta: { title: '检测管理', icon: 'table' }
+            meta: { title: '检测管理', icon: 'table', noCache: true }
         }, {
             path: 'detectionReport',
             name: 'DetectionReport',
             hidden: true,
             component: () =>
                 import ('@/views/mini/detection/report'),
-            meta: { title: '检测报告', activeMenu: "/mini/detection" }
+            meta: { title: '检测报告', activeMenu: "/mini/detection", breadcrumb: false }
         }, {
             path: 'order',
             name: 'Order',

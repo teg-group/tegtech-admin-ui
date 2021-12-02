@@ -24,7 +24,7 @@
       </el-form-item>
       <el-form-item label="报告状态" prop="status">
         <el-select
-          v-model="queryStatus.report"
+          v-model="queryParams.status"
           placeholder="报告状态"
           clearable
           size="small"
@@ -32,22 +32,6 @@
         >
           <el-option
             v-for="dict in reportStatusOptions"
-            :key="dict.value"
-            :label="dict.label"
-            :value="dict.value"
-          />
-        </el-select>
-      </el-form-item>
-      <el-form-item label="审核状态" prop="status">
-        <el-select
-          v-model="queryStatus.examine"
-          placeholder="审核状态"
-          clearable
-          size="small"
-          style="width: 240px"
-        >
-          <el-option
-            v-for="dict in examineStatusOptions"
             :key="dict.value"
             :label="dict.label"
             :value="dict.value"
@@ -86,18 +70,7 @@
       </el-table-column>
       <el-table-column label="报告状态" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.status === 0 ? '未生成' : '已生成' }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column label="审核状态" align="center">
-        <template slot-scope="{row}">
-          <div>
-            <span>{{ row.status | examineStatusFilter }}
-          </span>
-          <el-tooltip v-if="row.status === 4" class="item" effect="dark" :content="row.reason || '无'" placement="top">
-            <i class="el-icon-question" style="font-size: 14px;cursor: pointer;"></i>
-          </el-tooltip>
-          </div>
+          <span>{{ row.status | examineStatusFilter }}</span>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" fixed="right" class-name="small-padding fixed-width" width="130">
@@ -182,28 +155,19 @@ export default {
         beginTime: null,
         endTime: null
       },
-      queryStatus: {
-        report: null,
-        examine: null
-      },
       // 报告状态数据字典
       reportStatusOptions: [{
+        value: 0,
+        label: '已提交'
+      }, {
         value: 1,
-        label: '未生成'
+        label: '待审核'
       }, {
         value: 2,
-        label: '已生成'
-      }],
-      // 审核状态数据字典
-      examineStatusOptions: [{
-        value: 1,
-        label: '未审核'
-      }, {
-        value: 2,
-        label: '审核通过'
+        label: '审核未通过'
       }, {
         value: 3,
-        label: '审核未通过'
+        label: '已完成'
       }],
       // 总条数
       total: 0,
@@ -230,9 +194,16 @@ export default {
   },
   filters: {
     examineStatusFilter(val) {
-      if(val === 3) return '审核通过';
-      if(val === 4) return '审核未通过';
-      return '未审核'
+      switch(val){
+        case 0:
+          return "已提交"
+        case 1:
+          return "待审核"
+        case 2:
+          return "审核未通过"
+        case 3:
+          return "已完成"
+      }
     }
   },
   created() {
@@ -312,6 +283,7 @@ export default {
      */
     getList() {
       this.loading = true;
+      console.log(this.queryParams, "==")
       getDetectionList(this.queryParams).then(response => {
         this.detectionList = response.rows;
         this.total = response.total;
@@ -346,15 +318,6 @@ export default {
       this.queryParams.beginTime = begin;
       this.queryParams.endTime = end;
     },
-    queryStatus() {
-      if(this.queryStatus.report === 1) {
-        this.queryParams.status = 0;
-      } else if(this.queryStatus.report === 2) {
-        this.queryParams.status = this.queryStatus.examine;
-      } else {
-        this.queryParams.status = null;
-      }
-    }
   }
 };
 </script>

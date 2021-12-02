@@ -179,7 +179,8 @@
         </div>
         <div class="title">营养师的话</div>
         <div class="basic-block">
-            <el-form class="basic-form" :model="dietForm" :rules="dietFormRules" ref="dietForm" label-width="110px" :hide-required-asterisk="true">
+            <!-- :hide-required-asterisk="true" -->
+            <el-form class="basic-form" :model="dietForm" :rules="dietFormRules" ref="dietForm" label-width="110px">
                 <el-row>
                     <el-col :span="24">
                         <el-form-item label="主粮简评" prop="food">
@@ -224,7 +225,7 @@
             </div>
         </div>
         <div class="footer-block" v-if="!readonly">
-            <el-button size="mini">返 回</el-button>
+            <el-button size="mini" @click="handleBack">返 回</el-button>
             <el-button size="mini" type="primary" @click="createDetectReport">确认使用该报告</el-button>
         </div>
         <!-- 推荐商品弹窗 -->
@@ -438,6 +439,8 @@ export default {
                     }).then(() => {
                         this.$message.success('操作成功');
                         this.currentEditItemId = null;
+                        this.detectItems[index].isEdit = false;
+                        this.$forceUpdate()
                     })
                 }
             })
@@ -492,6 +495,9 @@ export default {
                 this.detectItems = res.detectItems || [];
                 this.products = res.products || [];
             })
+        },
+        handleBack(){
+            this.$router.push("/mini/detection")
         }
     }
 };
