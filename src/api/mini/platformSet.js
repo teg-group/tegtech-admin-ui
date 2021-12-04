@@ -22,7 +22,7 @@ export function saveIntegral(data) {
 export function getFreightStatus(query) {
   return request({
     url: "/freight/status",
-    method: "put",
+    method: "get",
     params: query
   });
 }
