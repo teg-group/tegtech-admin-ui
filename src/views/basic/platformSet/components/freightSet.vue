@@ -34,7 +34,8 @@
                     <el-input
                       v-if="item.type === 'input'"
                       :readonly="item.readonly"
-                      v-model.number="scope.row[item.prop]"
+                      v-model="scope.row[item.prop]"
+                      oninput="if(isNaN(value)) { value = parseFloat(value) } if(value.indexOf('.')>0){value=value.slice(0,value.indexOf('.')+3)}"
                     ></el-input>
                     <el-select
                       v-else-if="item.type === 'select'"
