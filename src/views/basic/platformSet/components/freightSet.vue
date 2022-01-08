@@ -40,6 +40,7 @@
                     <el-select
                       v-else-if="item.type === 'select'"
                       :readonly="item.readonly"
+                      filterable
                       v-model.number="scope.row[item.prop]"
                     >
                       <el-option
